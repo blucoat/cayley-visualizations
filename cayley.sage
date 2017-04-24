@@ -5,16 +5,10 @@ def cayley_color_graph(G, S):
     set S.
     '''
 
+    # This is inefficient, but ensures that things work out for finitely
+    # presented groups, where simplifications don't happen automatically
     vertices = list(G)
-
-    # If we're deeling with quotients of free groups, we need to explicitely
-    # simplify the product.
-    if isinstance(G, sage.groups.finitely_presented.FinitelyPresentedGroup):
-        k = G.rewriting_system()
-        k.make_confluent()
-        edges = [(g, k.reduce(s*g), s) for g in G for s in S]
-    else:
-        edges = [(g, s * g, s) for g in G for s in S]
+    edges = [(g, h, s) for g in G for h in G for s in S if h == s * g]
         
     return DiGraph([vertices, edges])
 
@@ -36,7 +30,10 @@ cay_D5_fp.show(color_by_label=True, edge_labels=True)
 # This has the advantage that the labels are closer to
 # what you write in math
 
-
 # We can also show either one in 3d:
 cay_D5.show3d(color_by_label=True)
 
+# Abelian groups can be dealt with in a special way
+Z2xZ5 = AbelianGroup([2,5])
+cay_Z2xZ5 = cayley_color_graph(Z2xZ5, Z2xZ5.gens())
+cay_Z2xZ5.show(color_by_label=True, edge_labels=True)
